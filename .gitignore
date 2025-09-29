@@ -12,6 +12,6 @@ env/
 
 # Test files
 frames/
-videos/
+videos/*
 frame_map.txt
 video_index.faiss
