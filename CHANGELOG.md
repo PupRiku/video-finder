@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.5.0 - Multi-Video & Thumbnail Support
+
+- Updated indexing script (`main.py`) to process an entire folder of videos.
+- Switched from a simple text file to a structured `frame_map.json` to store detailed frame metadata (source video, timestamp, etc.).
+- Implemented batch processing to handle indexing a large number of frames without memory errors.
+- Added filename sanitization to prevent errors from special characters in video titles.
+- Updated the Flask API (`app.py`) to serve frame images as static files.
+- Enhanced the frontend to group search results by their source video.
+- Added thumbnail images for each matched frame to the results display.
+
 ## v0.4.0 - Full-Stack Application Complete
 
 - Developed a frontend UI using Next.js and React.
