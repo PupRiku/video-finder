@@ -1,16 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 import { useState } from 'react';
 
 export default function HomePage() {
-  // State to hold the selected file and search results
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Handle file selection
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -19,32 +16,25 @@ export default function HomePage() {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
       alert('Please select a file first!');
       return;
     }
-
     setIsLoading(true);
     setError(null);
     setResults([]);
-
     const formData = new FormData();
     formData.append('image', selectedFile);
-
     try {
-      // Make sure your Flask backend is running!
       const response = await fetch('http://localhost:5000/search', {
         method: 'POST',
         body: formData,
       });
-
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`);
       }
-
       const data = await response.json();
       setResults(data);
     } catch (err) {
@@ -53,6 +43,16 @@ export default function HomePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Helper function to format timestamp
+  const formatTimestamp = (seconds) => {
+    return new Date(seconds * 1000).toISOString().substr(11, 8);
+  };
+
+  // Helper function to get just the video filename
+  const getVideoFilename = (path) => {
+    return path.split('\\').pop().split('/').pop();
   };
 
   return (
@@ -72,6 +72,7 @@ export default function HomePage() {
         <form onSubmit={handleSubmit}>
           {previewUrl && (
             <div className="mb-4 border-3 border-black">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
                 alt="Selected preview"
@@ -112,15 +113,23 @@ export default function HomePage() {
             {isLoading && <p>Loading...</p>}
             {error && <p className="text-red-500 font-bold">{error}</p>}
             {results.length > 0 && (
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {results.map((result) => (
                   <li
                     key={result.rank}
-                    className="bg-white p-2 border-3 border-black"
+                    className="bg-white p-3 border-3 border-black"
                   >
-                    <p>
-                      <strong>Rank {result.rank}:</strong> {result.filename}{' '}
-                      (Distance: {result.distance.toFixed(4)})
+                    <p className="font-bold text-lg">
+                      Rank #{result.rank} - Match in:
+                      <span className="text-accent-blue ml-2">
+                        {getVideoFilename(result.video_source)}
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Timestamp: ~{formatTimestamp(result.timestamp)}
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Matched Frame: {result.filename}
                     </p>
                   </li>
                 ))}
