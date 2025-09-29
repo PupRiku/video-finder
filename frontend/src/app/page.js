@@ -129,19 +129,26 @@ export default function HomePage() {
                     <h3 className="font-bold text-lg text-accent-blue border-b-2 border-gray-200 pb-2 mb-2">
                       {getVideoFilename(videoSource)}
                     </h3>
-                    <ul className="space-y-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
                       {frames.map((frame) => (
-                        <li key={frame.rank}>
-                          <p>
-                            <strong>Rank #{frame.rank}:</strong> Match at ~
-                            {formatTimestamp(frame.timestamp)}
+                        <div key={frame.rank}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`http://localhost:5000/${frame.filename}`}
+                            alt={`Matched frame from ${getVideoFilename(
+                              videoSource
+                            )}`}
+                            className="border-3 border-black w-full h-auto"
+                          />
+                          <p className="text-sm font-bold mt-1">
+                            Rank #{frame.rank}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            (Frame: {frame.filename})
+                          <p className="text-xs text-gray-600">
+                            ~{formatTimestamp(frame.timestamp)}
                           </p>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 ))}
               </div>

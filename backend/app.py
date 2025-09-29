@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from PIL import Image
 import faiss
@@ -14,7 +14,7 @@ CORS(app)
 # Configuration
 INDEX_FILE = 'video_index.faiss'
 FRAME_MAP_FILE = 'frame_map.json'
-TOP_K = 5
+TOP_K = 3
 
 # Load the AI model and FAISS index when the server starts
 print("Loading AI model and search index...")
@@ -68,6 +68,11 @@ def search_endpoint():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": "An error occurred during search"}), 500
+
+
+@app.route('/frames/<path:filename>')
+def serve_frame(filename):
+    return send_from_directory('frames', filename)
 
 
 if __name__ == '__main__':
