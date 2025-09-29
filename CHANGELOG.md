@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.0 - Backend API Complete
+
+- Created a Flask server in `app.py`.
+- Implemented a `/search` API endpoint to handle image uploads.
+- Integrated the core AI search logic directly into the Flask application.
+- The server now loads the model and index on startup for efficient searching.
+
 ## v0.2.0 - Proof of Concept Complete
 
 - Added `main.py` script to handle video processing.
