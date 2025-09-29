@@ -9,3 +9,7 @@ venv/
 .venv/
 env/
 .env/
+
+# Test files
+frames/
+videos/
