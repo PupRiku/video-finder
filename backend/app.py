@@ -5,22 +5,26 @@ import faiss
 from sentence_transformers import SentenceTransformer
 # import numpy as np
 # import os
+import json
 
 # --- App & AI Model Setup ---
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
 # Configuration
 INDEX_FILE = 'video_index.faiss'
-FRAME_MAP_FILE = 'frame_map.txt'
-TOP_K = 3  # Number of top results to return
+FRAME_MAP_FILE = 'frame_map.json'
+TOP_K = 5
 
 # Load the AI model and FAISS index when the server starts
 print("Loading AI model and search index...")
 model = SentenceTransformer('clip-ViT-B-32')
 index = faiss.read_index(INDEX_FILE)
+
+# Updated logic to load the new JSON frame map
 with open(FRAME_MAP_FILE, 'r') as f:
-    frame_map = [line.strip() for line in f.readlines()]
+    frame_map = json.load(f)
+
 print("Model and index loaded successfully.")
 
 
@@ -32,38 +36,33 @@ def hello_world():
 
 @app.route('/search', methods=['POST'])
 def search_endpoint():
-    # 'request.files' is a dictionary containing all uploaded files.
-    # We check if a file with the key 'image' was sent in the request.
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided..."}), 400
 
     image_file = request.files['image']
 
     try:
-        # Process the uploaded image in memory without saving it
         query_image = Image.open(image_file.stream)
-
-        # Create an embedding for the query image
         query_embedding = model.encode(
             [query_image],
             convert_to_tensor=True,
             show_progress_bar=False
         )
-
-        # Perform the search
         distances, indices = index.search(query_embedding.cpu().numpy(), TOP_K)
 
-        # Prepare the results
+        # Updated logic to create a more detailed results object
         results = []
         for i, idx in enumerate(indices[0]):
+            frame_data = frame_map[idx]
             result = {
                 "rank": i + 1,
-                "filename": frame_map[idx],
+                "filename": frame_data["frame_path"],
+                "video_source": frame_data["video_source"],
+                "timestamp": frame_data["timestamp"],
                 "distance": float(distances[0][i])
             }
             results.append(result)
 
-        # Return the results as JSON
         return jsonify(results)
 
     except Exception as e:
@@ -72,6 +71,4 @@ def search_endpoint():
 
 
 if __name__ == '__main__':
-    # We set debug=False because the model loading takes time
-    # and we don't want to reload it on every code change.
     app.run(debug=False, port=5000)
