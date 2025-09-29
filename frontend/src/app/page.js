@@ -1,15 +1,22 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import { useState } from 'react';
 
 export default function HomePage() {
   // State to hold the selected file and search results
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Handle file selection
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   // Handle form submission
@@ -19,8 +26,33 @@ export default function HomePage() {
       alert('Please select a file first!');
       return;
     }
-    // We will add the API call logic here in the next step
-    console.log('Submitting file:', selectedFile.name);
+
+    setIsLoading(true);
+    setError(null);
+    setResults([]);
+
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+
+    try {
+      // Make sure your Flask backend is running!
+      const response = await fetch('http://localhost:5000/search', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setResults(data);
+    } catch (err) {
+      setError('Failed to connect to the backend. Is it running?');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,10 +70,19 @@ export default function HomePage() {
 
         {/* Upload Form */}
         <form onSubmit={handleSubmit}>
+          {previewUrl && (
+            <div className="mb-4 border-3 border-black">
+              <img
+                src={previewUrl}
+                alt="Selected preview"
+                className="max-w-full h-auto"
+              />
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <label
               htmlFor="file-upload"
-              className="w-full sm:w-auto flex-shrink-0 cursor-pointer bg-white text-black font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-gray-200 transition-colors"
+              className="w-full sm:w-auto flex-shrink-0 cursor-pointer bg-white text-black font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-gray-200 transition-colors text-center"
             >
               {selectedFile ? selectedFile.name : 'Choose File...'}
             </label>
@@ -52,12 +93,12 @@ export default function HomePage() {
               onChange={handleFileChange}
               accept="image/*"
             />
-
             <button
               type="submit"
-              className="w-full sm:w-auto flex-grow bg-accent-blue text-white font-bold py-2 px-6 border-3 border-black shadow-brutal hover:bg-blue-700 transition-colors"
+              disabled={isLoading}
+              className="w-full sm:w-auto flex-grow bg-accent-blue text-white font-bold py-2 px-6 border-3 border-black shadow-brutal hover:bg-blue-700 transition-colors disabled:bg-gray-500"
             >
-              Search
+              {isLoading ? 'Searching...' : 'Search'}
             </button>
           </div>
         </form>
@@ -68,8 +109,28 @@ export default function HomePage() {
             Results
           </h2>
           <div className="mt-4">
-            {/* We will map over and display results here */}
-            <p className="text-gray-600">Search results will appear here...</p>
+            {isLoading && <p>Loading...</p>}
+            {error && <p className="text-red-500 font-bold">{error}</p>}
+            {results.length > 0 && (
+              <ul className="space-y-2">
+                {results.map((result) => (
+                  <li
+                    key={result.rank}
+                    className="bg-white p-2 border-3 border-black"
+                  >
+                    <p>
+                      <strong>Rank {result.rank}:</strong> {result.filename}{' '}
+                      (Distance: {result.distance.toFixed(4)})
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!isLoading && !error && results.length === 0 && (
+              <p className="text-gray-600">
+                Search results will appear here...
+              </p>
+            )}
           </div>
         </div>
       </div>

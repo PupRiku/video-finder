@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from PIL import Image
 import faiss
 from sentence_transformers import SentenceTransformer
@@ -7,6 +8,7 @@ from sentence_transformers import SentenceTransformer
 
 # --- App & AI Model Setup ---
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Configuration
 INDEX_FILE = 'video_index.faiss'

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0 - Full-Stack Application Complete
+
+- Developed a frontend UI using Next.js and React.
+- Styled the application with a Neo-Brutalist aesthetic using Tailwind CSS.
+- Implemented a file upload component with image preview.
+- Connected the frontend to the backend API to send images and receive results.
+- Handled UI states for loading, errors, and displaying search results.
+- Resolved CORS issues to enable communication between the frontend and backend servers.
+
 ## v0.3.0 - Backend API Complete
 
 - Created a Flask server in `app.py`.
