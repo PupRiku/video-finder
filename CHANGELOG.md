@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.0 - Visual Match Confidence
+
+- Implemented a calculation to convert the AI model's "distance" score into a user-friendly percentage.
+- Added color-coded badges to the UI for both video-level and frame-level results, dynamically changing from green to red based on match confidence.
+- Refined the results layout to include the new percentage indicators.
+
 ## v0.5.0 - Multi-Video & Thumbnail Support
 
 - Updated indexing script (`main.py`) to process an entire folder of videos.

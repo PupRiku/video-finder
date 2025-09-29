@@ -16,7 +16,6 @@ export default function HomePage() {
     }
   };
 
-  // --- Function to group results ---
   const groupResultsByVideo = (results) => {
     return results.reduce((acc, result) => {
       const video = result.video_source;
@@ -63,6 +62,18 @@ export default function HomePage() {
 
   const getVideoFilename = (path) => {
     return path.split('\\').pop().split('/').pop();
+  };
+
+  const calculateMatchPercentage = (distance) => {
+    const maxDistance = 0.5;
+    const percentage = Math.max(0, 1 - distance / maxDistance) * 100;
+    return Math.round(percentage);
+  };
+
+  const getBackgroundColorForPercentage = (percentage) => {
+    const red = Math.round(255 * (1 - percentage / 100));
+    const green = Math.round(255 * (percentage / 100));
+    return `rgb(${red}, ${green}, 0)`;
   };
 
   return (
@@ -121,36 +132,74 @@ export default function HomePage() {
 
             {groupedResults && Object.keys(groupedResults).length > 0 && (
               <div className="space-y-6">
-                {Object.entries(groupedResults).map(([videoSource, frames]) => (
-                  <div
-                    key={videoSource}
-                    className="bg-white p-3 border-3 border-black"
-                  >
-                    <h3 className="font-bold text-lg text-accent-blue border-b-2 border-gray-200 pb-2 mb-2">
-                      {getVideoFilename(videoSource)}
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
-                      {frames.map((frame) => (
-                        <div key={frame.rank}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={`http://localhost:5000/${frame.filename}`}
-                            alt={`Matched frame from ${getVideoFilename(
-                              videoSource
-                            )}`}
-                            className="border-3 border-black w-full h-auto"
-                          />
-                          <p className="text-sm font-bold mt-1">
-                            Rank #{frame.rank}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            ~{formatTimestamp(frame.timestamp)}
-                          </p>
+                {Object.entries(groupedResults).map(([videoSource, frames]) => {
+                  const bestFrame = frames[0];
+                  const videoMatchPercent = calculateMatchPercentage(
+                    bestFrame.distance
+                  );
+
+                  return (
+                    <div
+                      key={videoSource}
+                      className="bg-white p-3 border-3 border-black"
+                    >
+                      <div className="flex justify-between items-center border-b-2 border-gray-200 pb-2 mb-2">
+                        <h3 className="font-bold text-lg text-accent-blue">
+                          {getVideoFilename(videoSource)}
+                        </h3>
+                        <div
+                          className="text-black font-bold text-sm py-1 px-2 border-2 border-black"
+                          style={{
+                            backgroundColor:
+                              getBackgroundColorForPercentage(
+                                videoMatchPercent
+                              ),
+                          }}
+                        >
+                          {videoMatchPercent}% Match
                         </div>
-                      ))}
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
+                        {frames.map((frame) => {
+                          const frameMatchPercent = calculateMatchPercentage(
+                            frame.distance
+                          );
+                          return (
+                            <div key={frame.rank}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={`http://localhost:5000/${frame.filename}`}
+                                alt={`Matched frame from ${getVideoFilename(
+                                  videoSource
+                                )}`}
+                                className="border-3 border-black w-full h-auto"
+                              />
+                              <div className="flex justify-between items-center mt-1">
+                                <p className="text-sm font-bold">
+                                  Rank #{frame.rank}
+                                </p>
+                                <div
+                                  className="text-black font-bold text-xs py-0.5 px-1 border-2 border-black"
+                                  style={{
+                                    backgroundColor:
+                                      getBackgroundColorForPercentage(
+                                        frameMatchPercent
+                                      ),
+                                  }}
+                                >
+                                  {frameMatchPercent}%
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600">
+                                ~{formatTimestamp(frame.timestamp)}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
