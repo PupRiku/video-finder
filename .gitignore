@@ -14,7 +14,7 @@ env/
 # Test files
 frames/
 videos/
-frame_map.txt
+frame_map.json
 video_index.faiss
 
 # dependencies
