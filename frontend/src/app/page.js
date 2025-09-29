@@ -4,7 +4,7 @@ import { useState } from 'react';
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [results, setResults] = useState([]);
+  const [groupedResults, setGroupedResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -16,6 +16,18 @@ export default function HomePage() {
     }
   };
 
+  // --- Function to group results ---
+  const groupResultsByVideo = (results) => {
+    return results.reduce((acc, result) => {
+      const video = result.video_source;
+      if (!acc[video]) {
+        acc[video] = [];
+      }
+      acc[video].push(result);
+      return acc;
+    }, {});
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
@@ -24,7 +36,7 @@ export default function HomePage() {
     }
     setIsLoading(true);
     setError(null);
-    setResults([]);
+    setGroupedResults(null);
     const formData = new FormData();
     formData.append('image', selectedFile);
     try {
@@ -36,7 +48,7 @@ export default function HomePage() {
         throw new Error(`Server error: ${response.statusText}`);
       }
       const data = await response.json();
-      setResults(data);
+      setGroupedResults(groupResultsByVideo(data));
     } catch (err) {
       setError('Failed to connect to the backend. Is it running?');
       console.error(err);
@@ -45,12 +57,10 @@ export default function HomePage() {
     }
   };
 
-  // Helper function to format timestamp
   const formatTimestamp = (seconds) => {
     return new Date(seconds * 1000).toISOString().substr(11, 8);
   };
 
-  // Helper function to get just the video filename
   const getVideoFilename = (path) => {
     return path.split('\\').pop().split('/').pop();
   };
@@ -58,7 +68,6 @@ export default function HomePage() {
   return (
     <main className="bg-off-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-mono">
       <div className="w-full max-w-2xl bg-primary-yellow border-3 border-black shadow-brutal p-6">
-        {/* Header */}
         <div className="text-center border-b-3 border-black pb-4 mb-6">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-black tracking-tighter">
             AI Video Frame Finder
@@ -67,8 +76,6 @@ export default function HomePage() {
             Upload a screenshot. Find the source.
           </p>
         </div>
-
-        {/* Upload Form */}
         <form onSubmit={handleSubmit}>
           {previewUrl && (
             <div className="mb-4 border-3 border-black">
@@ -103,8 +110,7 @@ export default function HomePage() {
             </button>
           </div>
         </form>
-
-        {/* Results Section */}
+        {/* --- Results Section --- */}
         <div className="mt-8">
           <h2 className="text-2xl font-bold border-b-3 border-black pb-2">
             Results
@@ -112,30 +118,36 @@ export default function HomePage() {
           <div className="mt-4">
             {isLoading && <p>Loading...</p>}
             {error && <p className="text-red-500 font-bold">{error}</p>}
-            {results.length > 0 && (
-              <ul className="space-y-4">
-                {results.map((result) => (
-                  <li
-                    key={result.rank}
+
+            {groupedResults && Object.keys(groupedResults).length > 0 && (
+              <div className="space-y-6">
+                {Object.entries(groupedResults).map(([videoSource, frames]) => (
+                  <div
+                    key={videoSource}
                     className="bg-white p-3 border-3 border-black"
                   >
-                    <p className="font-bold text-lg">
-                      Rank #{result.rank} - Match in:
-                      <span className="text-accent-blue ml-2">
-                        {getVideoFilename(result.video_source)}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      Timestamp: ~{formatTimestamp(result.timestamp)}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      Matched Frame: {result.filename}
-                    </p>
-                  </li>
+                    <h3 className="font-bold text-lg text-accent-blue border-b-2 border-gray-200 pb-2 mb-2">
+                      {getVideoFilename(videoSource)}
+                    </h3>
+                    <ul className="space-y-2">
+                      {frames.map((frame) => (
+                        <li key={frame.rank}>
+                          <p>
+                            <strong>Rank #{frame.rank}:</strong> Match at ~
+                            {formatTimestamp(frame.timestamp)}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            (Frame: {frame.filename})
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
-            {!isLoading && !error && results.length === 0 && (
+
+            {!isLoading && !error && !groupedResults && (
               <p className="text-gray-600">
                 Search results will appear here...
               </p>
