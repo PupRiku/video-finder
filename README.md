@@ -2,14 +2,14 @@
 
 This project is a full-stack application that uses an AI-powered backend to find the source video of a specific moment using only a screenshot.
 
-## Current Status: Full-Stack Prototype (v0.6.0)
+## Current Status: Full-Stack Prototype (v0.7.0)
 
 The project is a functional prototype consisting of a Python/Flask backend and a Next.js/React frontend.
 
+- **Accurate AI Matching:** The backend uses a normalized inner product (IP) search index with the CLIP model, providing accurate and intuitive similarity scores for real-world screenshots.
 - **Multi-Video Support:** The backend can process a library of multiple videos, creating a unified search index.
-- **AI Search API:** A Flask server exposes a `/search` API that accepts an uploaded image, performs a similarity search, and returns a detailed list of matched frames.
 - **Interactive Frontend:** A Next.js application provides a UI for uploading a screenshot.
-- **Advanced Results Display:** The results are grouped by the source video, and thumbnails of the matched frames are displayed. Each match includes a color-coded percentage score indicating the confidence of the match.
+- **Advanced Results Display:** The results are grouped by the source video, with thumbnails and color-coded percentage scores indicating match confidence.
 
 ## How to Run
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.0 - AI Similarity Logic Correction
+
+- Corrected the core search logic to use a normalized `IndexFlatIP` (Inner Product) index, which is appropriate for the CLIP model.
+- Rebuilt the indexing script and search API to correctly normalize all vectors, ensuring accurate similarity scores.
+- Fixed the match percentage calculation on the frontend to correctly interpret the new inner product scores.
+- Resolved a bug where real-world screenshots consistently showed a 0% match confidence.
+
 ## v0.6.0 - Visual Match Confidence
 
 - Implemented a calculation to convert the AI model's "distance" score into a user-friendly percentage.

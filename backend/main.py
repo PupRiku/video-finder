@@ -133,8 +133,11 @@ def create_full_index():
     # Concatenate embeddings from all batches
     final_embeddings = np.concatenate(all_embeddings)
 
+    # --- NORMALIZE THE EMBEDDINGS ---
+    faiss.normalize_L2(final_embeddings)
+
     embedding_dim = final_embeddings.shape[1]
-    index = faiss.IndexFlatL2(embedding_dim)
+    index = faiss.IndexFlatIP(embedding_dim)
     index.add(final_embeddings)
 
     faiss.write_index(index, INDEX_FILE)

@@ -48,6 +48,7 @@ def search_endpoint():
             convert_to_tensor=True,
             show_progress_bar=False
         )
+        faiss.normalize_L2(query_embedding.cpu().numpy())
         distances, indices = index.search(query_embedding.cpu().numpy(), TOP_K)
 
         # Updated logic to create a more detailed results object

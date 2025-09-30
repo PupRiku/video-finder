@@ -47,6 +47,7 @@ export default function HomePage() {
         throw new Error(`Server error: ${response.statusText}`);
       }
       const data = await response.json();
+      console.log('Raw API Results:', data);
       setGroupedResults(groupResultsByVideo(data));
     } catch (err) {
       setError('Failed to connect to the backend. Is it running?');
@@ -65,8 +66,7 @@ export default function HomePage() {
   };
 
   const calculateMatchPercentage = (distance) => {
-    const maxDistance = 0.5;
-    const percentage = Math.max(0, 1 - distance / maxDistance) * 100;
+    const percentage = Math.max(0, distance) * 100;
     return Math.round(percentage);
   };
 
