@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.8.0 - Online Web Scraping and Search
+
+- Created a new Python script (`scraper.py`) using Requests and BeautifulSoup to extract thumbnail and page URLs from a given webpage.
+- Added a new `/scrape_and_search` API endpoint to the Flask backend.
+- Implemented on-the-fly AI searching: the new endpoint scrapes a URL, downloads its thumbnails, builds a temporary in-memory FAISS index, and searches it with a user-uploaded image.
+- Updated the frontend UI to include a URL input field to enable the online search mode.
+- Modified the frontend results display to handle and link to the scraped online content.
+
 ## v0.7.0 - AI Similarity Logic Correction
 
 - Corrected the core search logic to use a normalized `IndexFlatIP` (Inner Product) index, which is appropriate for the CLIP model.
