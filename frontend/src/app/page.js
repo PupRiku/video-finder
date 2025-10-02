@@ -1,30 +1,22 @@
 'use client';
 import { useState } from 'react';
 
+const MAX_MATCH_DISTANCE = 0.6;
+
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [groupedResults, setGroupedResults] = useState(null);
+  const [previewURL, setPreviewURL] = useState(null);
+  const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [targetUrl, setTargetUrl] = useState('');
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setPreviewURL(URL.createObjectURL(file));
     }
-  };
-
-  const groupResultsByVideo = (results) => {
-    return results.reduce((acc, result) => {
-      const video = result.video_source;
-      if (!acc[video]) {
-        acc[video] = [];
-      }
-      acc[video].push(result);
-      return acc;
-    }, {});
   };
 
   const handleSubmit = async (event) => {
@@ -35,34 +27,34 @@ export default function HomePage() {
     }
     setIsLoading(true);
     setError(null);
-    setGroupedResults(null);
+    setResults(null);
+
     const formData = new FormData();
     formData.append('image', selectedFile);
+    formData.append('target_url', targetUrl);
+
     try {
-      const response = await fetch('http://localhost:5000/search', {
+      const response = await fetch('http://localhost:5000/scrape_and_search', {
         method: 'POST',
         body: formData,
       });
+
       if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
+        const errData = await response.json();
+        throw new Error(
+          errData.error || `Server error: ${response.statusText}`
+        );
       }
+
       const data = await response.json();
       console.log('Raw API Results:', data);
-      setGroupedResults(groupResultsByVideo(data));
+      setResults(data);
     } catch (err) {
-      setError('Failed to connect to the backend. Is it running?');
+      setError(err.message || 'Failed to connect to the backend.');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatTimestamp = (seconds) => {
-    return new Date(seconds * 1000).toISOString().substr(11, 8);
-  };
-
-  const getVideoFilename = (path) => {
-    return path.split('\\').pop().split('/').pop();
   };
 
   const calculateMatchPercentage = (distance) => {
@@ -84,15 +76,33 @@ export default function HomePage() {
             AI Video Frame Finder
           </h1>
           <p className="text-black mt-1">
-            Upload a screenshot. Find the source.
+            Upload a screenshot and enter a URL to search.
           </p>
         </div>
         <form onSubmit={handleSubmit}>
-          {previewUrl && (
+          <div className="mb-4">
+            <label
+              htmlFor="url-input"
+              className="block text-black font-bold mb-2"
+            >
+              Website URL to Search:
+            </label>
+            <input
+              id="url-input"
+              type="url"
+              value={targetUrl}
+              onChange={(e) => setTargetUrl(e.target.value)}
+              placeholder="https://example.com/videos"
+              className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
+              required
+            />
+          </div>
+
+          {previewURL && (
             <div className="mb-4 border-3 border-black">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={previewUrl}
+                src={previewURL}
                 alt="Selected preview"
                 className="max-w-full h-auto"
               />
@@ -103,7 +113,7 @@ export default function HomePage() {
               htmlFor="file-upload"
               className="w-full sm:w-auto flex-shrink-0 cursor-pointer bg-white text-black font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-gray-200 transition-colors text-center"
             >
-              {selectedFile ? selectedFile.name : 'Choose File...'}
+              {selectedFile ? selectedFile.name : 'Choose Screenshot...'}
             </label>
             <input
               id="file-upload"
@@ -121,81 +131,61 @@ export default function HomePage() {
             </button>
           </div>
         </form>
-        {/* --- Results Section --- */}
+
         <div className="mt-8">
           <h2 className="text-2xl font-bold border-b-3 border-black pb-2">
             Results
           </h2>
           <div className="mt-4">
-            {isLoading && <p>Loading...</p>}
+            {isLoading && (
+              <p>Loading... (Scraping and searching can take a moment)</p>
+            )}
             {error && <p className="text-red-500 font-bold">{error}</p>}
 
-            {groupedResults && Object.keys(groupedResults).length > 0 && (
-              <div className="space-y-6">
-                {Object.entries(groupedResults).map(([videoSource, frames]) => {
-                  const bestFrame = frames[0];
-                  const videoMatchPercent = calculateMatchPercentage(
-                    bestFrame.distance
+            {results && results.length > 0 && (
+              <div className="space-y-4">
+                {results.map((result) => {
+                  const matchPercent = calculateMatchPercentage(
+                    result.distance
                   );
-
                   return (
                     <div
-                      key={videoSource}
-                      className="bg-white p-3 border-3 border-black"
+                      key={result.rank}
+                      className="bg-white p-3 border-3 border-black flex items-start gap-4"
                     >
-                      <div className="flex justify-between items-center border-b-2 border-gray-200 pb-2 mb-2">
-                        <h3 className="font-bold text-lg text-accent-blue">
-                          {getVideoFilename(videoSource)}
-                        </h3>
-                        <div
-                          className="text-black font-bold text-sm py-1 px-2 border-2 border-black"
-                          style={{
-                            backgroundColor:
-                              getBackgroundColorForPercentage(
-                                videoMatchPercent
-                              ),
-                          }}
-                        >
-                          {videoMatchPercent}% Match
+                      <a
+                        href={result.page_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={result.thumbnail_url}
+                          alt={`Thumbnail for match #${result.rank}`}
+                          className="w-24 h-auto border-3 border-black"
+                        />
+                      </a>
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-center">
+                          <p className="font-bold">Rank #{result.rank}</p>
+                          <div
+                            className="text-black font-bold text-sm py-1 px-2 border-2 border-black"
+                            style={{
+                              backgroundColor:
+                                getBackgroundColorForPercentage(matchPercent),
+                            }}
+                          >
+                            {matchPercent}% Match
+                          </div>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3">
-                        {frames.map((frame) => {
-                          const frameMatchPercent = calculateMatchPercentage(
-                            frame.distance
-                          );
-                          return (
-                            <div key={frame.rank}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={`http://localhost:5000/${frame.filename}`}
-                                alt={`Matched frame from ${getVideoFilename(
-                                  videoSource
-                                )}`}
-                                className="border-3 border-black w-full h-auto"
-                              />
-                              <div className="flex justify-between items-center mt-1">
-                                <p className="text-sm font-bold">
-                                  Rank #{frame.rank}
-                                </p>
-                                <div
-                                  className="text-black font-bold text-xs py-0.5 px-1 border-2 border-black"
-                                  style={{
-                                    backgroundColor:
-                                      getBackgroundColorForPercentage(
-                                        frameMatchPercent
-                                      ),
-                                  }}
-                                >
-                                  {frameMatchPercent}%
-                                </div>
-                              </div>
-                              <p className="text-xs text-gray-600">
-                                ~{formatTimestamp(frame.timestamp)}
-                              </p>
-                            </div>
-                          );
-                        })}
+                        <a
+                          href={result.page_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accent-blue hover:underline break-all text-sm"
+                        >
+                          {result.page_url}
+                        </a>
                       </div>
                     </div>
                   );
@@ -203,7 +193,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {!isLoading && !error && !groupedResults && (
+            {!isLoading && !error && !results && (
               <p className="text-gray-600">
                 Search results will appear here...
               </p>
