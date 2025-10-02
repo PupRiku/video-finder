@@ -3,14 +3,13 @@ from bs4 import BeautifulSoup
 import urllib.parse
 
 
-def scrape_image_urls(url):
+def scrape_page_data(url):
     """
-    Visits a URL, fetches its HTML content, and finds all image URLs.
+    Visits a URL and scrapes a list of dictionaries, each containing
+    a page link and its corresponding thumbnail image URL
     """
     try:
-        # Step 1: Fetch the webpage content
         print(f"Fetching content from: {url}")
-        # A 'User-Agent' header helps mimic a real web browser
         headers = {
             'User-Agent': (
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
@@ -19,27 +18,28 @@ def scrape_image_urls(url):
             )
         }
         response = requests.get(url, headers=headers, timeout=10)
-
-        # Raise an exception if the request failed (e.g., 404 not found)
         response.raise_for_status()
-
-        # Step 2: Parse the HTML with BeautifulSoup
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        # Step 3: Find all image tags
+        # Find all thumbnail images
         image_tags = soup.find_all('img', class_='thumbnail')
         print(f"Found {len(image_tags)} matching image tags.")
 
-        # Step 4: Extract and normalize image URLs
-        image_urls = []
+        scraped_data = []
         for img_tag in image_tags:
-            # The 'src' attribute contains the image URL
-            src = img_tag.get('src')
-            if src:
-                # Convert relative URLs to absolute URLs
-                absolute_url = urllib.parse.urljoin(url, src)
-                image_urls.append(absolute_url)
-        return image_urls
+            # Find the parent 'a' tag to get the page link
+            parent_link = img_tag.find_parent('a')
+            if parent_link and parent_link.has_attr('href'):
+                page_url = urllib.parse.urljoin(url, parent_link['href'])
+                img_src = img_tag.get('src', '')
+                thumbnail_url = urllib.parse.urljoin(url, img_src)
+
+                scraped_data.append({
+                    'page_url': page_url,
+                    'thumbnail_url': thumbnail_url
+                })
+
+        return scraped_data
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
@@ -50,9 +50,12 @@ def scrape_image_urls(url):
 if __name__ == "__main__":
     # We'll use a simple, predictable page for our first test
     test_url = "https://books.toscrape.com/"
-    found_urls = scrape_image_urls(test_url)
+    found_data = scrape_page_data(test_url)
 
-    if found_urls is not None:
-        print(f"\nFound {len(found_urls)} image URLs.")
-        for i, url in enumerate(found_urls):
-            print(f"{i+1}: {url}")
+    if found_data:
+        print(f"\n--- Found {len(found_data)} Items ---")
+        for i, item in enumerate(found_data):
+            print(
+                f"{i+1}: Page: {item['page_url']} | "
+                f"Thumbnail: {item['thumbnail_url']}"
+            )
