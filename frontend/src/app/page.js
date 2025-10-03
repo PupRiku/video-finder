@@ -1,7 +1,16 @@
 'use client';
 import { useState } from 'react';
 
-const MAX_MATCH_DISTANCE = 0.6;
+const SUPPORTED_SITES = {
+  books_to_scrape: {
+    name: 'Books to Scrape (Test Site)',
+    baseUrl: 'https://books.toscrape.com/',
+  },
+  pornhub: {
+    name: 'Pornhub Gay',
+    baseUrl: 'https://www.pornhub.com/video/gayporn',
+  },
+};
 
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -9,7 +18,8 @@ export default function HomePage() {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [targetUrl, setTargetUrl] = useState('');
+  const [targetSite, setTargetSite] = useState(Object.keys(SUPPORTED_SITES)[0]);
+  const [numPages, setNumPages] = useState(1);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -31,7 +41,9 @@ export default function HomePage() {
 
     const formData = new FormData();
     formData.append('image', selectedFile);
-    formData.append('target_url', targetUrl);
+    formData.append('target_url', SUPPORTED_SITES[targetSite].baseUrl);
+    formData.append('target_site', targetSite);
+    formData.append('num_pages', numPages);
 
     try {
       const response = await fetch('http://localhost:5000/scrape_and_search', {
@@ -80,24 +92,45 @@ export default function HomePage() {
           </p>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="url-input"
-              className="block text-black font-bold mb-2"
-            >
-              Website URL to Search:
-            </label>
-            <input
-              id="url-input"
-              type="url"
-              value={targetUrl}
-              onChange={(e) => setTargetUrl(e.target.value)}
-              placeholder="https://example.com/videos"
-              className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label
+                htmlFor="site-select"
+                className="block text-black font-bold mb-2"
+              >
+                Select Site:
+              </label>
+              <select
+                id="site-select"
+                value={targetSite}
+                onChange={(e) => setTargetSite(e.target.value)}
+                className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none appearance-none"
+              >
+                {Object.entries(SUPPORTED_SITES).map(([key, site]) => (
+                  <option key={key} value={key}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="page-input"
+                className="block text-black font-bold mb-2"
+              >
+                Pages to Scrape:
+              </label>
+              <input
+                id="page-input"
+                type="number"
+                value={numPages}
+                onChange={(e) => setNumPages(e.target.value)}
+                min="1"
+                max="10" // It's a good idea to set a reasonable max
+                className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
+              />
+            </div>
           </div>
-
           {previewURL && (
             <div className="mb-4 border-3 border-black">
               {/* eslint-disable-next-line @next/next/no-img-element */}

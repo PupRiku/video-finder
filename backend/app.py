@@ -83,14 +83,22 @@ def search_endpoint():
 
 @app.route('/scrape_and_search', methods=['POST'])
 def scrape_and_search_endpoint():
-    if 'image' not in request.files or 'target_url' not in request.form:
-        return jsonify({"error": "Missing image or target_url"}), 400
+    if (
+        'image' not in request.files or
+        'target_url' not in request.form or
+        'target_site' not in request.form
+    ):
+        return jsonify({
+            "error": "Missing image, target_url, or target_site"
+        }), 400
 
     image_file = request.files['image']
     target_url = request.form['target_url']
+    site_key = request.form['target_site']
+    num_pages = int(request.form.get('num_pages', 1))
 
     # Scrape the target URL
-    scrapped_data = scrape_page_data(target_url)
+    scrapped_data = scrape_page_data(target_url, site_key, max_pages=num_pages)
     if not scrapped_data:
         return jsonify({
             "error": "Failed to scrape or no images found on URL"

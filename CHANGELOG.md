@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.9.0 - Advanced Scraping & Pagination
+
+- Implemented a multi-page scraping (pagination) feature to scan more than just the first page of a website.
+- Added a "Pages to Scrape" input to the frontend, allowing the user to control the depth of the online search.
+- Refactored the backend scraper to support a dictionary of site-specific rules.
+- Replaced the URL text input with a site selection dropdown in the UI for a more controlled and user-friendly experience.
+- Fixed multiple scraping bugs related to nested HTML tags and character encoding.
+
 ## v0.8.0 - Online Web Scraping and Search
 
 - Created a new Python script (`scraper.py`) using Requests and BeautifulSoup to extract thumbnail and page URLs from a given webpage.
