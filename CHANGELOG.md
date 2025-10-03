@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.10.0 - UI & Usability Improvements
+
+- Added a new modal to explain the application's purpose, capabilities, and limitations.
+- Added a tooltip to the "Pages to Scrape" input to warn users that higher numbers will increase processing time.
+- Enhanced the loading message with a pulse animation for better visual feedback during searches.
+
 ## v0.9.0 - Advanced Scraping & Pagination
 
 - Implemented a multi-page scraping (pagination) feature to scan more than just the first page of a website.

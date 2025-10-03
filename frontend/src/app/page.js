@@ -181,7 +181,9 @@ export default function HomePage() {
           </h2>
           <div className="mt-4">
             {isLoading && (
-              <p>Loading... (Scraping and searching can take a moment)</p>
+              <p className="text-black font-bold animate-pulse">
+                Searching... this can take a moment.
+              </p>
             )}
             {error && <p className="text-red-500 font-bold">{error}</p>}
 
