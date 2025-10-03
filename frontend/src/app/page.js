@@ -21,6 +21,7 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [targetSite, setTargetSite] = useState(Object.keys(SUPPORTED_SITES)[0]);
   const [numPages, setNumPages] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -91,6 +92,13 @@ export default function HomePage() {
           <p className="text-black mt-1">
             Upload a screenshot and enter a URL to search.
           </p>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="text-accent-blue hover:underline mt-2"
+          >
+            What can this app do?
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -241,6 +249,40 @@ export default function HomePage() {
         place="top"
         content="Heads up: More pages will significantly increase processing time."
       />
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          {/* Modal content */}
+          <div className="bg-primary-yellow p-6 border-3 border-black shadow-brutal max-w-lg w-full relative font-mono">
+            {/* Close button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute -top-2 -right-2 bg-white border-3 border-black rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
+              aria-label="Close modal"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4 border-b-3 border-black pb-2">
+              About This App
+            </h2>
+            <div className="space-y-3 text-sm">
+              <p>
+                <strong className="font-bold">✅ What it Does:</strong> This app
+                takes a screenshot (a single frame) from a video and searches
+                through the pages of a supported website to find which video
+                that frame appears in.
+              </p>
+              <p>
+                <strong className="font-bold">
+                  ❌ What it Doesn&#39;t Do:
+                </strong>{' '}
+                It does not search the entire website, only the number of pages
+                you specify. It does not work for any site not listed in the
+                dropdown. It is not a reverse image search for general images.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
