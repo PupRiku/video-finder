@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
 const SUPPORTED_SITES = {
   books_to_scrape: {
@@ -117,6 +118,7 @@ export default function HomePage() {
               <label
                 htmlFor="page-input"
                 className="block text-black font-bold mb-2"
+                data-tooltip-id="pages-tooltip"
               >
                 Pages to Scrape:
               </label>
@@ -126,7 +128,7 @@ export default function HomePage() {
                 value={numPages}
                 onChange={(e) => setNumPages(e.target.value)}
                 min="1"
-                max="10" // It's a good idea to set a reasonable max
+                data-tooltip-id="pages-tooltip"
                 className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
               />
             </div>
@@ -234,6 +236,11 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      <Tooltip
+        id="pages-tooltip"
+        place="top"
+        content="Heads up: More pages will significantly increase processing time."
+      />
     </main>
   );
 }
