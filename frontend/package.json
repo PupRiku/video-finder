@@ -12,6 +12,7 @@
     "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
+    "electron-is-dev": "^3.0.1",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -22,7 +23,6 @@
     "concurrently": "^9.2.1",
     "electron": "^38.2.1",
     "electron-builder": "^26.0.12",
-    "electron-is-dev": "^3.0.1",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.4",
     "postcss": "^8.4.35",
