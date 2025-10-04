@@ -2,6 +2,30 @@ const { app, BrowserWindow, shell } = require('electron/main');
 const path = require('path');
 const url = require('url');
 const isDev = require('electron-is-dev');
+const { spawn } = require('child_process');
+
+// Global reference to the backend process
+let backendProcess;
+
+function startBackend() {
+  // Determine the path to the backend executable
+  const backendPath = isDev
+    ? path.join(__dirname, '../backend/dist/app.exe')
+    : path.join(process.resourcesPath, 'app.exe');
+
+  console.log(`Starting backend at: ${backendPath}`);
+
+  // Launch the backend executable
+  backendProcess = spawn(backendPath);
+
+  // Log output from the backend process
+  backendProcess.stdout.on('data', (data) => {
+    console.log(`Backend: ${data}`);
+  });
+  backendProcess.stderr.on('data', (data) => {
+    console.error(`Backend Error: ${data}`);
+  });
+}
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -19,16 +43,22 @@ function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
-  // Intercepts requests to open a new window
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    // Open the URL in the default browser
     shell.openExternal(url);
-    // Prevent Electron from creating a new window
     return { action: 'deny' };
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  startBackend();
+  createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -36,8 +66,9 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+app.on('quit', () => {
+  console.log('Killing backend process...');
+  if (backendProcess) {
+    backendProcess.kill();
   }
 });
