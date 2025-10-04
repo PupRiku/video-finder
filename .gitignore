@@ -54,3 +54,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# PyInstaller build artifacts
+backend/build/
+backend/dist/
+backend/*.spec
