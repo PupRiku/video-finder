@@ -4,23 +4,22 @@ const url = require('url');
 const isDev = require('electron-is-dev');
 const { spawn } = require('child_process');
 
-// Global reference to the backend process
 let backendProcess;
 
 function startBackend() {
-  // Determine the path to the backend executable
   const backendPath = isDev
     ? path.join(__dirname, '../backend/dist/app.exe')
     : path.join(process.resourcesPath, 'app.exe');
 
   console.log(`Starting backend at: ${backendPath}`);
-
-  // Launch the backend executable
   backendProcess = spawn(backendPath);
 
-  // Log output from the backend process
   backendProcess.stdout.on('data', (data) => {
-    console.log(`Backend: ${data}`);
+    const message = data.toString();
+    console.log(`Backend: ${message}`);
+    if (message.includes('Model loaded successfully.')) {
+      BrowserWindow.getAllWindows()[0].webContents.send('backend-ready');
+    }
   });
   backendProcess.stderr.on('data', (data) => {
     console.error(`Backend Error: ${data}`);
@@ -31,6 +30,9 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
 
   const startUrl = isDev
