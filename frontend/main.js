@@ -1,13 +1,12 @@
 const { app, BrowserWindow, shell } = require('electron/main');
 const path = require('path');
 const url = require('url');
-const isDev = require('electron-is-dev');
 const { spawn } = require('child_process');
 
 let backendProcess;
 
 function startBackend() {
-  const backendPath = isDev
+  const backendPath = !app.isPackaged
     ? path.join(__dirname, '../backend/dist/app.exe')
     : path.join(process.resourcesPath, 'backend/app.exe');
 
@@ -36,15 +35,11 @@ function createWindow() {
     },
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:3000'
-    : url.format({
-        pathname: path.join(__dirname, './out/index.html'),
-        protocol: 'file:',
-        slashes: true,
-      });
-
-  mainWindow.loadURL(startUrl);
+  if (!app.isPackaged) {
+    mainWindow.loadURL('http://localhost:3000');
+  } else {
+    mainWindow.loadFile(path.join(__dirname, './out/index.html'));
+  }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);

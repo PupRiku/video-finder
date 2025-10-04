@@ -12,7 +12,6 @@
     "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
-    "electron-is-dev": "^3.0.1",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -39,8 +38,8 @@
     ],
     "extraResources": [
       {
-        "from": "../backend/dist",
-        "to": "backend"
+        "from": "../backend/dist/app.exe",
+        "to": "backend/app.exe"
       }
     ]
   }
