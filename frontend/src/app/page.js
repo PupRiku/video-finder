@@ -3,10 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 const SUPPORTED_SITES = {
-  books_to_scrape: {
-    name: 'Books to Scrape (Test Site)',
-    baseUrl: 'https://books.toscrape.com/',
-  },
   pornhub: {
     name: 'Pornhub Gay',
     baseUrl: 'https://www.pornhub.com/video/gayporn',
@@ -27,7 +23,6 @@ export default function HomePage() {
   useEffect(() => {
     if (window.api && window.api.onBackendReady) {
       window.api.onBackendReady(() => {
-        console.log('Backend is ready!');
         setIsBackendReady(true);
       });
     }
@@ -71,7 +66,6 @@ export default function HomePage() {
       }
 
       const data = await response.json();
-      console.log('Raw API Results:', data);
       setResults(data);
     } catch (err) {
       setError(err.message || 'Failed to connect to the backend.');

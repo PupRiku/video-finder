@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.0 - Official Release
+
+- Packaged the frontend and backend into a single desktop application using Electron.
+- Automated the startup and shutdown of the Python backend executable from the Electron main process.
+- Implemented a startup loading screen to handle the backend's AI model initialization time, improving user experience.
+- Fixed external links in the results to open in the user's default browser.
+- Resolved complex, multi-day environment and versioning issues with Node.js and Electron to achieve a stable build.
+- Finalized all code by removing debugging logs and test data for a clean production release.
+
 ## v0.10.0 - UI & Usability Improvements
 
 - Added a new modal to explain the application's purpose, capabilities, and limitations.
