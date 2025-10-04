@@ -58,3 +58,7 @@ next-env.d.ts
 backend/build/
 backend/dist/
 backend/*.spec
+
+# Next.js and Electron build artifacts
+/frontend/out/
+/frontend/dist/
