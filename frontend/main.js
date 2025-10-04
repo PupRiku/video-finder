@@ -9,9 +9,10 @@ let backendProcess;
 function startBackend() {
   const backendPath = isDev
     ? path.join(__dirname, '../backend/dist/app.exe')
-    : path.join(process.resourcesPath, 'app.exe');
+    : path.join(process.resourcesPath, 'backend/app.exe');
 
   console.log(`Starting backend at: ${backendPath}`);
+
   backendProcess = spawn(backendPath);
 
   backendProcess.stdout.on('data', (data) => {
