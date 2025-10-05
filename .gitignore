@@ -62,3 +62,6 @@ backend/*.spec
 # Next.js and Electron build artifacts
 /frontend/out/
 /frontend/dist/
+
+# Test and coverage reports
+test_reports/
