@@ -2,26 +2,21 @@
 
 An AI-powered desktop application to find the source of a video clip by searching a website's thumbnails with a screenshot.
 
-## About The Project
+## Current Status: v1.0.3
 
-This application allows a user to take a screenshot from a video clip and find its original source on a supported website. It works by scraping the thumbnail images from the site's video pages and using a powerful AI model (CLIP) to find the closest visual match to the user's uploaded image.
+This is a stable release that packages a Python/Flask backend and a Next.js/React frontend into a single desktop application using Electron. It includes key bug fixes for stability and performance.
 
-This project is a full-stack desktop application built with a React/Next.js frontend and a Python/Flask backend, all wrapped in an Electron shell.
+### ✨ Features
 
-### Built With
-
-- **Frontend:** React, Next.js, Tailwind CSS
-- **Backend:** Python, Flask, PyTorch
-- **AI:** SentenceTransformers (CLIP), Faiss
-- **Desktop Shell:** Electron, Electron Builder
-- **Scraping:** Requests, BeautifulSoup
+- **Intuitive Interface:** A clean, single-page application designed for ease of use.
+- **Dynamic Feedback:** A live, animated progress indicator during searches and a performance tooltip to warn about intensive tasks.
+- **Clear Documentation:** An in-app "About This App" modal clarifies the tool's capabilities and limitations.
+- **Customizable Searches:** Select from a pre-configured list of supported sites and define the number of pages to scrape for each search.
 
 ## Getting Started (For Users)
 
-To use the application, please follow these steps:
-
 1.  Go to the **Releases** section on the right-hand side of this GitHub page.
-2.  Download the latest installer file (e.g., `VidFinder-Setup-1.0.2.exe`).
+2.  Download the latest installer file (e.g., `VidFinder-Setup-1.0.3.exe`).
 3.  Run the installer and launch the application from the desktop shortcut or Start Menu.
 
 ## For Developers

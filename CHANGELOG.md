@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.3 - Stability and Bug Fixes
+
+- **Fixed Backend Shutdown:** Implemented a graceful shutdown sequence with a visual indicator to ensure the app.exe process is reliably terminated when the application is closed, resolving a resource leak on Windows.
+- **Fixed Invalid File Crash:** Added frontend validation to the file input, preventing users from selecting non-image files and resolving an application crash.
+- **Fixed Reload Hang:** Rearchitected the backend status check to use a persistent state in the main process, allowing the UI to reload correctly without getting stuck on the "Initializing" screen.
+- **Fixed Startup Crash:** Corrected a TypeError in the main process that caused the packaged application to crash silently on launch before the window could be created.
+
+## v1.0.2 - Bug Fix Release
+
+- **Fixed Invalid File Crash:** Added frontend validation to the file input, preventing users from selecting non-image files and resolving an application crash.
+
+## v1.0.1 - Bug Fix Release
+
+- **Fixed Backend Shutdown:** Patched an issue where the backend process would not terminate correctly on the first launch after installation.
+
 ## v1.0.0 - Official Release
 
 - Packaged the frontend and backend into a single desktop application using Electron.
