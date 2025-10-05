@@ -54,6 +54,17 @@ export default function HomePage() {
     }
   };
 
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setPreviewURL(null);
+    document.getElementById('file-upload').value = '';
+  };
+
+  const handleClearResults = () => {
+    setResults(null);
+    setError(null);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
@@ -207,6 +218,15 @@ export default function HomePage() {
                   onChange={handleFileChange}
                   accept="image/*"
                 />
+                {selectedFile && (
+                  <button
+                    type="button"
+                    onClick={handleClearFile}
+                    className="w-full sm:w-auto bg-red-500 text-white font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-red-700 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -217,9 +237,18 @@ export default function HomePage() {
               </div>
             </form>
             <div className="mt-8">
-              <h2 className="text-2xl font-bold border-b-3 border-black pb-2">
-                Results
-              </h2>
+              <div className="flex justify-between items-center border-b-3 border-black pb-2">
+                <h2 className="text-2xl font-bold">Results</h2>
+                {(results || error) && (
+                  <button
+                    type="button"
+                    onClick={handleClearResults}
+                    className="bg-red-500 text-white font-bold text-sm py-1 px-3 border-3 border-black shadow-brutal hover:bg-red-700 transition-colors"
+                  >
+                    Clear Results
+                  </button>
+                )}
+              </div>
               <div className="mt-4">
                 {isLoading && (
                   <p className="text-black font-bold animate-pulse">
