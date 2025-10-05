@@ -1,6 +1,6 @@
 {
   "name": "vid-finder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": "main.js",
   "scripts": {
@@ -15,7 +15,8 @@
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-tooltip": "^5.29.1"
+    "react-tooltip": "^5.29.1",
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.17",
@@ -41,6 +42,11 @@
         "from": "../backend/dist/app.exe",
         "to": "backend/app.exe"
       }
-    ]
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false
+    }
   }
 }
