@@ -21,11 +21,18 @@ export default function HomePage() {
   const [isBackendReady, setIsBackendReady] = useState(false);
 
   useEffect(() => {
-    if (window.api && window.api.onBackendReady) {
-      window.api.onBackendReady(() => {
-        setIsBackendReady(true);
-      });
-    }
+    const checkStatusAndListen = async () => {
+      if (window.api) {
+        const isReady = await window.api.checkBackendStatus();
+        if (isReady) {
+          setIsBackendReady(true);
+        }
+        window.api.onBackendReady(() => {
+          setIsBackendReady(true);
+        });
+      }
+    };
+    checkStatusAndListen();
   }, []);
 
   const handleFileChange = (event) => {
