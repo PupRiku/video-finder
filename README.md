@@ -21,7 +21,7 @@ This project is a full-stack desktop application built with a React/Next.js fron
 To use the application, please follow these steps:
 
 1.  Go to the **Releases** section on the right-hand side of this GitHub page.
-2.  Download the latest installer file (e.g., `VidFinder-Setup-1.0.0.exe`).
+2.  Download the latest installer file (e.g., `VidFinder-Setup-1.0.2.exe`).
 3.  Run the installer and launch the application from the desktop shortcut or Start Menu.
 
 ## For Developers
