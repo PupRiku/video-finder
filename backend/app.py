@@ -9,20 +9,14 @@ import io
 
 from scraper import scrape_page_data
 
-# --- App & AI Model Setup ---
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
-TOP_K = 3
-
-# Load the AI model and FAISS index when the server starts
 print("Loading AI model...")
 model = SentenceTransformer('clip-ViT-B-32')
 print("Model loaded successfully.")
 
 
-# --- Helper function to download an image from a URL ---
 def download_image(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
@@ -34,7 +28,6 @@ def download_image(url):
         return None
 
 
-# --- API Endpoints ---
 @app.route('/')
 def hello_world():
     return "<p>Hello, World! The search server is running.</p>"
@@ -55,6 +48,12 @@ def scrape_and_search_endpoint():
     target_url = request.form['target_url']
     site_key = request.form['target_site']
     num_pages = int(request.form.get('num_pages', 1))
+
+    top_k_str = request.form.get('top_k', 3)
+    try:
+        top_k = int(top_k_str)
+    except (ValueError, TypeError):
+        top_k = 3
 
     scraped_data = scrape_page_data(target_url, site_key, max_pages=num_pages)
     if not scraped_data:
@@ -87,7 +86,7 @@ def scrape_and_search_endpoint():
     query_embedding = model.encode([query_image], convert_to_tensor=True)
     faiss.normalize_L2(query_embedding.cpu().numpy())
     distances, indices = temp_index.search(
-        query_embedding.cpu().numpy(), TOP_K
+        query_embedding.cpu().numpy(), top_k
     )
 
     results = []

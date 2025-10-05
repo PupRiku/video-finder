@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 const SUPPORTED_SITES = {
@@ -17,6 +17,7 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [targetSite, setTargetSite] = useState(Object.keys(SUPPORTED_SITES)[0]);
   const [numPages, setNumPages] = useState(1);
+  const [numResults, setNumResults] = useState(3);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBackendReady, setIsBackendReady] = useState(false);
 
@@ -30,6 +31,11 @@ export default function HomePage() {
         window.api.onBackendReady(() => {
           setIsBackendReady(true);
         });
+      } else {
+        console.warn(
+          'Electron API not found, using fallback timer for backend status.'
+        );
+        setTimeout(() => setIsBackendReady(true), 2000);
       }
     };
     checkStatusAndListen();
@@ -39,12 +45,8 @@ export default function HomePage() {
     const file = event.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert(
-          'Invalid file type. Please select an image (e.g., JPG, PNG, GIF).'
-        );
-        event.target.value = null;
-        setSelectedFile(null);
-        setPreviewURL(null);
+        alert('Invalid file type. Please select an image.');
+        event.target.value = '';
         return;
       }
       setSelectedFile(file);
@@ -67,20 +69,19 @@ export default function HomePage() {
     formData.append('target_url', SUPPORTED_SITES[targetSite].baseUrl);
     formData.append('target_site', targetSite);
     formData.append('num_pages', numPages);
+    formData.append('top_k', numResults);
 
     try {
       const response = await fetch('http://localhost:5000/scrape_and_search', {
         method: 'POST',
         body: formData,
       });
-
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(
           errData.error || `Server error: ${response.statusText}`
         );
       }
-
       const data = await response.json();
       setResults(data);
     } catch (err) {
@@ -112,7 +113,7 @@ export default function HomePage() {
                 AI Video Frame Finder
               </h1>
               <p className="text-black mt-1">
-                Upload a screenshot and enter a URL to search.
+                Select a site, provide a URL, and upload a screenshot.
               </p>
               <button
                 type="button"
@@ -123,7 +124,7 @@ export default function HomePage() {
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label
                     htmlFor="site-select"
@@ -156,9 +157,28 @@ export default function HomePage() {
                     id="page-input"
                     type="number"
                     value={numPages}
-                    onChange={(e) => setNumPages(e.target.value)}
+                    onChange={(e) => setNumPages(parseInt(e.target.value, 10))}
                     min="1"
                     data-tooltip-id="pages-tooltip"
+                    className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="results-input"
+                    className="block text-black font-bold mb-2"
+                  >
+                    Results to Show:
+                  </label>
+                  <input
+                    id="results-input"
+                    type="number"
+                    value={numResults}
+                    onChange={(e) =>
+                      setNumResults(parseInt(e.target.value, 10))
+                    }
+                    min="1"
+                    max="10"
                     className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
                   />
                 </div>
@@ -196,7 +216,6 @@ export default function HomePage() {
                 </button>
               </div>
             </form>
-
             <div className="mt-8">
               <h2 className="text-2xl font-bold border-b-3 border-black pb-2">
                 Results
@@ -208,7 +227,6 @@ export default function HomePage() {
                   </p>
                 )}
                 {error && <p className="text-red-500 font-bold">{error}</p>}
-
                 {results && results.length > 0 && (
                   <div className="space-y-4">
                     {results.map((result) => {
@@ -261,7 +279,6 @@ export default function HomePage() {
                     })}
                   </div>
                 )}
-
                 {!isLoading && !error && !results && (
                   <p className="text-gray-600">
                     Search results will appear here...
@@ -277,9 +294,7 @@ export default function HomePage() {
           />
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-              {/* Modal content */}
               <div className="bg-primary-yellow p-6 border-3 border-black shadow-brutal max-w-lg w-full relative font-mono">
-                {/* Close button */}
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="absolute -top-2 -right-2 bg-white border-3 border-black rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
