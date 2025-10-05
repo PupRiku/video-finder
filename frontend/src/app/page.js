@@ -20,10 +20,14 @@ export default function HomePage() {
   const [numResults, setNumResults] = useState(3);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBackendReady, setIsBackendReady] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const checkStatusAndListen = async () => {
       if (window.api) {
+        const savedTheme = await window.api.getTheme();
+        setIsDarkMode(savedTheme === 'dark');
+
         const isReady = await window.api.checkBackendStatus();
         if (isReady) {
           setIsBackendReady(true);
@@ -40,6 +44,18 @@ export default function HomePage() {
     };
     checkStatusAndListen();
   }, []);
+
+  useEffect(() => {
+    const theme = isDarkMode ? 'dark' : 'light';
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    if (window.api) {
+      window.api.setTheme(theme);
+    }
+  }, [isDarkMode]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -115,15 +131,60 @@ export default function HomePage() {
   };
 
   return (
-    <main className="bg-off-white min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-mono">
+    <main className="bg-off-white dark:bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-mono">
       {isBackendReady ? (
         <>
-          <div className="w-full max-w-2xl bg-primary-yellow border-3 border-black shadow-brutal p-6">
-            <div className="text-center border-b-3 border-black pb-4 mb-6">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-black tracking-tighter">
+          <div className="w-full max-w-2xl bg-primary-yellow dark:bg-gray-800 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark p-6 relative">
+            <div className="absolute top-4 right-4">
+              <label
+                htmlFor="dark-mode-toggle"
+                className="flex items-center cursor-pointer"
+              >
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    id="dark-mode-toggle"
+                    className="sr-only"
+                    checked={isDarkMode}
+                    onChange={() => setIsDarkMode(!isDarkMode)}
+                  />
+                  <div className="block bg-white dark:bg-gray-600 w-14 h-8 rounded-full border-3 border-black dark:border-primary-yellow"></div>
+                  <div className="dot absolute left-1 top-1 bg-accent-blue dark:bg-primary-yellow w-6 h-6 rounded-full transition flex items-center justify-center">
+                    <svg
+                      className="h-4 w-4 text-primary-yellow dark:hidden"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                      />
+                    </svg>
+                    <svg
+                      className="h-4 w-4 text-black hidden dark:block"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </label>
+            </div>
+            <div className="text-center border-b-3 border-black dark:border-primary-yellow pb-4 mb-6">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-off-white tracking-tighter">
                 AI Video Frame Finder
               </h1>
-              <p className="text-black mt-1">
+              <p className="text-black dark:text-gray-300 mt-1">
                 Select a site, provide a URL, and upload a screenshot.
               </p>
               <button
@@ -139,7 +200,7 @@ export default function HomePage() {
                 <div>
                   <label
                     htmlFor="site-select"
-                    className="block text-black font-bold mb-2"
+                    className="block text-black dark:text-off-white font-bold mb-2"
                   >
                     Select Site:
                   </label>
@@ -147,7 +208,7 @@ export default function HomePage() {
                     id="site-select"
                     value={targetSite}
                     onChange={(e) => setTargetSite(e.target.value)}
-                    className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none appearance-none"
+                    className="w-full p-2 border-3 border-black dark:border-primary-yellow dark:bg-gray-700 dark:text-off-white shadow-brutal dark:shadow-brutal-dark focus:outline-none appearance-none"
                   >
                     {Object.entries(SUPPORTED_SITES).map(([key, site]) => (
                       <option key={key} value={key}>
@@ -159,7 +220,7 @@ export default function HomePage() {
                 <div>
                   <label
                     htmlFor="page-input"
-                    className="block text-black font-bold mb-2"
+                    className="block text-black dark:text-off-white font-bold mb-2"
                     data-tooltip-id="pages-tooltip"
                   >
                     Pages to Scrape:
@@ -171,13 +232,13 @@ export default function HomePage() {
                     onChange={(e) => setNumPages(parseInt(e.target.value, 10))}
                     min="1"
                     data-tooltip-id="pages-tooltip"
-                    className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
+                    className="w-full p-2 border-3 border-black dark:border-primary-yellow dark:bg-gray-700 dark:text-off-white shadow-brutal dark:shadow-brutal-dark focus:outline-none"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="results-input"
-                    className="block text-black font-bold mb-2"
+                    className="block text-black dark:text-off-white font-bold mb-2"
                   >
                     Results to Show:
                   </label>
@@ -189,13 +250,12 @@ export default function HomePage() {
                       setNumResults(parseInt(e.target.value, 10))
                     }
                     min="1"
-                    max="10"
-                    className="w-full p-2 border-3 border-black shadow-brutal focus:outline-none"
+                    className="w-full p-2 border-3 border-black dark:border-primary-yellow dark:bg-gray-700 dark:text-off-white shadow-brutal dark:shadow-brutal-dark focus:outline-none"
                   />
                 </div>
               </div>
               {previewURL && (
-                <div className="mb-4 border-3 border-black">
+                <div className="mb-4 border-3 border-black dark:border-primary-yellow">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={previewURL}
@@ -207,7 +267,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <label
                   htmlFor="file-upload"
-                  className="w-full sm:w-auto flex-shrink-0 cursor-pointer bg-white text-black font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-gray-200 transition-colors text-center"
+                  className="w-full sm:w-auto flex-shrink-0 cursor-pointer bg-white text-black dark:bg-gray-700 dark:text-off-white font-bold py-2 px-4 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center"
                 >
                   {selectedFile ? selectedFile.name : 'Choose Screenshot...'}
                 </label>
@@ -222,7 +282,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={handleClearFile}
-                    className="w-full sm:w-auto bg-red-500 text-white font-bold py-2 px-4 border-3 border-black shadow-brutal hover:bg-red-700 transition-colors"
+                    className="w-full sm:w-auto bg-red-500 text-white font-bold py-2 px-4 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark hover:bg-red-700 transition-colors"
                   >
                     Clear
                   </button>
@@ -230,20 +290,22 @@ export default function HomePage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full sm:w-auto flex-grow bg-accent-blue text-white font-bold py-2 px-6 border-3 border-black shadow-brutal hover:bg-blue-700 transition-colors disabled:bg-gray-500"
+                  className="w-full sm:w-auto flex-grow bg-accent-blue text-white font-bold py-2 px-6 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark hover:bg-blue-700 transition-colors disabled:bg-gray-500"
                 >
                   {isLoading ? 'Searching...' : 'Search'}
                 </button>
               </div>
             </form>
             <div className="mt-8">
-              <div className="flex justify-between items-center border-b-3 border-black pb-2">
-                <h2 className="text-2xl font-bold">Results</h2>
+              <div className="flex justify-between items-center border-b-3 border-black dark:border-primary-yellow pb-2">
+                <h2 className="text-2xl font-bold text-black dark:text-off-white">
+                  Results
+                </h2>
                 {(results || error) && (
                   <button
                     type="button"
                     onClick={handleClearResults}
-                    className="bg-red-500 text-white font-bold text-sm py-1 px-3 border-3 border-black shadow-brutal hover:bg-red-700 transition-colors"
+                    className="bg-red-500 text-white font-bold text-sm py-1 px-3 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark hover:bg-red-700 transition-colors"
                   >
                     Clear Results
                   </button>
@@ -251,7 +313,7 @@ export default function HomePage() {
               </div>
               <div className="mt-4">
                 {isLoading && (
-                  <p className="text-black font-bold animate-pulse">
+                  <p className="text-black dark:text-off-white font-bold animate-pulse">
                     Searching... this can take a moment.
                   </p>
                 )}
@@ -265,7 +327,7 @@ export default function HomePage() {
                       return (
                         <div
                           key={result.rank}
-                          className="bg-white p-3 border-3 border-black flex items-start gap-4"
+                          className="bg-white dark:bg-gray-700 p-3 border-3 border-black dark:border-primary-yellow flex items-start gap-4"
                         >
                           <a
                             href={result.page_url}
@@ -276,12 +338,14 @@ export default function HomePage() {
                             <img
                               src={result.thumbnail_url}
                               alt={`Thumbnail for match #${result.rank}`}
-                              className="w-24 h-auto border-3 border-black"
+                              className="w-24 h-auto border-3 border-black dark:border-primary-yellow"
                             />
                           </a>
                           <div className="flex-grow">
                             <div className="flex justify-between items-center">
-                              <p className="font-bold">Rank #{result.rank}</p>
+                              <p className="font-bold text-black dark:text-off-white">
+                                Rank #{result.rank}
+                              </p>
                               <div
                                 className="text-black font-bold text-sm py-1 px-2 border-2 border-black"
                                 style={{
@@ -309,7 +373,7 @@ export default function HomePage() {
                   </div>
                 )}
                 {!isLoading && !error && !results && (
-                  <p className="text-gray-600">
+                  <p className="text-gray-600  dark:text-gray-400">
                     Search results will appear here...
                   </p>
                 )}
@@ -323,7 +387,7 @@ export default function HomePage() {
           />
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-              <div className="bg-primary-yellow p-6 border-3 border-black shadow-brutal max-w-lg w-full relative font-mono">
+              <div className="bg-primary-yellow dark:bg-gray-800 p-6 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark max-w-lg w-full relative font-mono">
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="absolute -top-2 -right-2 bg-white border-3 border-black rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
@@ -331,10 +395,10 @@ export default function HomePage() {
                 >
                   &times;
                 </button>
-                <h2 className="text-2xl font-bold mb-4 border-b-3 border-black pb-2">
+                <h2 className="text-2xl font-bold mb-4 border-b-3 border-black dark:border-primary-yellow pb-2 text-black dark:text-off-white">
                   About This App
                 </h2>
-                <div className="space-y-3 text-sm">
+                <div className="space-y-3 text-sm text-black dark:text-gray-300">
                   <p>
                     <strong className="font-bold">✅ What it Does:</strong> This
                     app takes a screenshot (a single frame) from a video and
@@ -350,7 +414,7 @@ export default function HomePage() {
                     in the dropdown. It is not a reverse image search for
                     general images.
                   </p>
-                  <p className="pt-4 border-t-2 border-gray-400">
+                  <p className="pt-4 border-t-2 border-gray-400 dark:border-gray-600">
                     <strong className="font-bold">
                       ☕ Support This Project:
                     </strong>{' '}
@@ -371,7 +435,7 @@ export default function HomePage() {
           )}
         </>
       ) : (
-        <div className="text-center">
+        <div className="text-center dark:text-off-white">
           <h1 className="text-3xl font-bold animate-pulse">
             Initializing Backend...
           </h1>

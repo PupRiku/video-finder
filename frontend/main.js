@@ -3,10 +3,20 @@ const path = require('path');
 const url = require('url');
 const { spawn } = require('child_process');
 const kill = require('tree-kill');
+const Store = require('electron-store');
+
+const store = new Store();
 
 let mainWindow;
 let backendProcess;
 let isBackendModelReady = false;
+
+ipcMain.handle('get-theme', () => {
+  return store.get('theme', 'light');
+});
+ipcMain.on('set-theme', (event, theme) => {
+  store.set('theme', theme);
+});
 
 function startBackend() {
   const backendPath = !app.isPackaged
