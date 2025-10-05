@@ -47,6 +47,9 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "runAfterFinish": false
+    },
+    "win": {
+      "icon": "build/icon.ico"
     }
   }
 }

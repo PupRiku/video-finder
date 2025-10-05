@@ -2,9 +2,11 @@
 
 An AI-powered desktop application to find the source of a video clip by searching a website's thumbnails with a screenshot.
 
-## Current Status: v1.0.3
+## About The Project
 
-This is a stable release that packages a Python/Flask backend and a Next.js/React frontend into a single desktop application using Electron. It includes key bug fixes for stability and performance.
+This application allows a user to take a screenshot from a video clip and find its original source on a supported website. It works by scraping the thumbnail images from the site's video pages and using a powerful AI model (CLIP) to find the closest visual match to the user's uploaded image.
+
+This project is a full-stack desktop application built with a React/Next.js frontend and a Python/Flask backend, all wrapped in an Electron sh
 
 ### ✨ Features
 
@@ -12,6 +14,14 @@ This is a stable release that packages a Python/Flask backend and a Next.js/Reac
 - **Dynamic Feedback:** A live, animated progress indicator during searches and a performance tooltip to warn about intensive tasks.
 - **Clear Documentation:** An in-app "About This App" modal clarifies the tool's capabilities and limitations.
 - **Customizable Searches:** Select from a pre-configured list of supported sites and define the number of pages to scrape for each search.
+
+### Built With
+
+- **Frontend:** React, Next.js, Tailwind CSS
+- **Backend:** Python, Flask, PyTorch
+- **AI:** SentenceTransformers (CLIP), Faiss
+- **Desktop Shell:** Electron, Electron Builder
+- **Scraping:** Requests, BeautifulSoup
 
 ## Getting Started (For Users)
 
@@ -38,3 +48,10 @@ To run this project in a development environment, you will need two terminals.
     ```sh
     npm run electron:dev
     ```
+
+## Credits and Attribution
+
+The application icon was created using assets from Flaticon.
+
+- <a href="https://www.flaticon.com/free-icons/film" title="film icons">Film icons created by Freepik - Flaticon</a>
+- <a href="https://www.flaticon.com/free-icons/magnifying-glass" title="magnifying glass icons">Magnifying glass icons created by Muhammad_Usman - Flaticon</a>
