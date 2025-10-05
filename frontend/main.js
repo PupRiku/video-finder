@@ -3,20 +3,11 @@ const path = require('path');
 const url = require('url');
 const { spawn } = require('child_process');
 const kill = require('tree-kill');
-const Store = require('electron-store');
-
-const store = new Store();
 
 let mainWindow;
 let backendProcess;
-let isBackendModelReady = false;
-
-ipcMain.handle('get-theme', () => {
-  return store.get('theme', 'light');
-});
-ipcMain.on('set-theme', (event, theme) => {
-  store.set('theme', theme);
-});
+let isBackendReady = false;
+let isQuitting = false; // Flag to manage the shutdown sequence
 
 function startBackend() {
   const backendPath = !app.isPackaged
@@ -30,10 +21,9 @@ function startBackend() {
     const message = data.toString();
     console.log(`Backend: ${message}`);
     if (message.includes('Model loaded successfully.')) {
-      isBackendModelReady = true;
-      const windows = BrowserWindow.getAllWindows();
-      if (windows.length > 0) {
-        windows[0].webContents.send('backend-ready');
+      isBackendReady = true;
+      if (mainWindow) {
+        mainWindow.webContents.send('backend-ready');
       }
     }
   });
@@ -55,7 +45,7 @@ function createWindow() {
   const startUrl = !app.isPackaged
     ? 'http://localhost:3000'
     : url.format({
-        pathname: path.join(__dirname, './out/index.html'),
+        pathname: path.join(__dirname, 'out/index.html'),
         protocol: 'file:',
         slashes: true,
       });
@@ -68,33 +58,46 @@ function createWindow() {
   });
 
   mainWindow.on('close', (event) => {
+    // If we are already in the process of quitting, let the window close
+    if (isQuitting) {
+      return;
+    }
+
+    // Otherwise, start our graceful shutdown
     event.preventDefault();
+
+    const shutdownWindow = new BrowserWindow({
+      width: 400,
+      height: 150,
+      frame: false,
+      transparent: true,
+      alwaysOnTop: true,
+      center: true,
+    });
     const shutdownHtml = `
       <body style="font-family: monospace; text-align: center; color: black; background: #f7ff58; border: 3px solid black; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
         <h1>Shutting down backend...</h1>
       </body>
     `;
-    mainWindow.loadURL(`data:text/html,${shutdownHtml}`);
-    mainWindow.webContents.once('did-finish-load', () => {
-      if (backendProcess && backendProcess.pid) {
-        kill(backendProcess.pid, 'SIGKILL', (err) => {
-          if (err) console.error('Failed to kill backend process:', err);
-          else console.log('Backend process tree killed successfully.');
-          mainWindow.destroy();
-          app.quit();
-        });
-      } else {
-        mainWindow.destroy();
-        app.quit();
-      }
-    });
+    shutdownWindow.loadURL(`data:text/html,${shutdownHtml}`);
+
+    if (backendProcess && backendProcess.pid) {
+      kill(backendProcess.pid, 'SIGKILL', (err) => {
+        if (err) console.error('Failed to kill backend process:', err);
+        else console.log('Backend process tree killed successfully.');
+
+        isQuitting = true; // Set the flag
+        app.quit(); // Now, quit for real
+      });
+    } else {
+      isQuitting = true;
+      app.quit();
+    }
   });
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle('check-backend-status', () => {
-    return isBackendModelReady;
-  });
+  ipcMain.handle('check-backend-status', () => isBackendReady);
 
   startBackend();
   createWindow();

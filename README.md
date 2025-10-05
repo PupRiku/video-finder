@@ -17,7 +17,7 @@ This project is a full-stack desktop application built with a React/Next.js fron
 ### ✨ Features
 
 - **Intuitive Interface:** A clean, single-page application with a unique Neo-Brutalist design.
-- **Dark & Light Modes:** A persistent theme toggle with custom icons.
+- **Dark & Light Modes:** A theme toggle with custom icons.
 - **AI-Powered Search:** Uses a powerful AI model to find visual matches between a screenshot and website thumbnails.
 - **Multi-Page Scraping:** Can scrape multiple pages of a supported website in a single search.
 - **Customizable Searches:** Select from a list of supported sites and define how many pages and results to show.

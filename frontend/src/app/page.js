@@ -10,6 +10,8 @@ const SUPPORTED_SITES = {
 };
 
 export default function HomePage() {
+  const [isDarkMode, setIsDarkMode] = useState(false); // Defaults to light mode
+  const [isBackendReady, setIsBackendReady] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
   const [results, setResults] = useState(null);
@@ -19,41 +21,33 @@ export default function HomePage() {
   const [numPages, setNumPages] = useState(1);
   const [numResults, setNumResults] = useState(3);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBackendReady, setIsBackendReady] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const checkStatusAndListen = async () => {
+    const initializeApp = async () => {
       if (window.api) {
-        const savedTheme = await window.api.getTheme();
-        setIsDarkMode(savedTheme === 'dark');
-
-        const isReady = await window.api.checkBackendStatus();
-        if (isReady) {
+        const backendStatus = await window.api.checkBackendStatus();
+        if (backendStatus) {
           setIsBackendReady(true);
         }
         window.api.onBackendReady(() => {
           setIsBackendReady(true);
         });
+
+        // Theme persistence logic removed
       } else {
-        console.warn(
-          'Electron API not found, using fallback timer for backend status.'
-        );
+        console.warn('Electron API not found, using fallback timers.');
         setTimeout(() => setIsBackendReady(true), 2000);
       }
     };
-    checkStatusAndListen();
+    initializeApp();
   }, []);
 
+  // Effect to toggle dark mode class (no longer saves preference)
   useEffect(() => {
-    const theme = isDarkMode ? 'dark' : 'light';
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
-    }
-    if (window.api) {
-      window.api.setTheme(theme);
     }
   }, [isDarkMode]);
 
@@ -131,7 +125,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="bg-off-white dark:bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-mono">
+    <main className="bg-off-white dark:bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 font-mono transition-colors duration-300">
       {isBackendReady ? (
         <>
           <div className="w-full max-w-2xl bg-primary-yellow dark:bg-gray-800 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark p-6 relative">
@@ -150,36 +144,53 @@ export default function HomePage() {
                   />
                   <div className="block bg-white dark:bg-gray-600 w-14 h-8 rounded-full border-3 border-black dark:border-primary-yellow"></div>
                   <div className="dot absolute left-1 top-1 bg-accent-blue dark:bg-primary-yellow w-6 h-6 rounded-full transition flex items-center justify-center">
-                    <svg
-                      className="h-4 w-4 text-primary-yellow dark:hidden"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
+                    {isDarkMode ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="black"
+                        strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                      >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
                         strokeWidth="2"
-                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                      />
-                    </svg>
-                    <svg
-                      className="h-4 w-4 text-black hidden dark:block"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                      />
-                    </svg>
+                      >
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line
+                          x1="18.36"
+                          y1="18.36"
+                          x2="19.78"
+                          y2="19.78"
+                        ></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                      </svg>
+                    )}
                   </div>
                 </div>
               </label>
             </div>
+
             <div className="text-center border-b-3 border-black dark:border-primary-yellow pb-4 mb-6">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-off-white tracking-tighter">
                 AI Video Frame Finder
@@ -373,7 +384,7 @@ export default function HomePage() {
                   </div>
                 )}
                 {!isLoading && !error && !results && (
-                  <p className="text-gray-600  dark:text-gray-400">
+                  <p className="text-gray-600 dark:text-gray-400">
                     Search results will appear here...
                   </p>
                 )}
@@ -390,7 +401,7 @@ export default function HomePage() {
               <div className="bg-primary-yellow dark:bg-gray-800 p-6 border-3 border-black dark:border-primary-yellow shadow-brutal dark:shadow-brutal-dark max-w-lg w-full relative font-mono">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="absolute -top-2 -right-2 bg-white border-3 border-black rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold hover:bg-gray-200"
+                  className="absolute -top-2 -right-2 bg-white dark:bg-gray-700 border-3 border-black dark:border-primary-yellow rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-off-white"
                   aria-label="Close modal"
                 >
                   &times;
@@ -417,7 +428,7 @@ export default function HomePage() {
                   <p className="pt-4 border-t-2 border-gray-400 dark:border-gray-600">
                     <strong className="font-bold">
                       ☕ Support This Project:
-                    </strong>{' '}
+                    </strong>
                     If you find this tool useful, consider supporting its
                     development.
                     <a

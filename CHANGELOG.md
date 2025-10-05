@@ -2,7 +2,7 @@
 
 ## v1.1.0 - UI Polish & Quick Wins
 
-- **Dark Mode:** Implemented a persistent dark mode toggle with custom icons, allowing users to switch between light and dark themes. The user's preference is saved between sessions.
+- **Dark Mode:** Implemented a persistent dark mode toggle with custom icons, allowing users to switch between light and dark themes.
 - **Custom Application Icon:** Added a unique, neo-brutalist icon for the desktop shortcut, taskbar, and application executable.
 - **Support Link:** Added a "Buy Me a Coffee" link to the "About" modal to allow users to support the project.
 - **Clear Buttons:** Implemented "Clear Screenshot" and "Clear Results" buttons to improve the user workflow and make starting a new search easier.
