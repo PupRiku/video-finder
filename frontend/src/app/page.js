@@ -31,6 +31,15 @@ export default function HomePage() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert(
+          'Invalid file type. Please select an image (e.g., JPG, PNG, GIF).'
+        );
+        event.target.value = null;
+        setSelectedFile(null);
+        setPreviewURL(null);
+        return;
+      }
       setSelectedFile(file);
       setPreviewURL(URL.createObjectURL(file));
     }
