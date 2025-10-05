@@ -1,9 +1,9 @@
 # AI Video Frame Finder
 
 <p align="center">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/version-v1.1.0-blue.svg" alt="Version" />
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/status-active-brightgreen.svg" alt="Status" />
+<img src="https://img.shields.io/badge/version-v1.1.0-blue.svg" alt="Version" />
+<img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
+<img src="https://img.shields.io/badge/status-active-brightgreen.svg" alt="Status" />
 </p>
 
 An AI-powered desktop application to find the source of a video clip by searching a website's thumbnails with a screenshot.
