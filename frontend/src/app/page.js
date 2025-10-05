@@ -350,6 +350,21 @@ export default function HomePage() {
                     in the dropdown. It is not a reverse image search for
                     general images.
                   </p>
+                  <p className="pt-4 border-t-2 border-gray-400">
+                    <strong className="font-bold">
+                      ☕ Support This Project:
+                    </strong>{' '}
+                    If you find this tool useful, consider supporting its
+                    development.
+                    <a
+                      href="https://www.buymeacoffee.com/PupRiku"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent-blue font-bold hover:underline ml-2"
+                    >
+                      Buy Me a Coffee!
+                    </a>
+                  </p>
                 </div>
               </div>
             </div>
