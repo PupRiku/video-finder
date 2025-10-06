@@ -65,3 +65,10 @@ backend/*.spec
 
 # Test and coverage reports
 test_reports/
+
+# Playwright test reports
+/frontend/playwright-report/
+/frontend/test-results/
+/frontend/blob-report/
+/frontend/playwright/.cache/
+/frontend/playwright/.auth/
